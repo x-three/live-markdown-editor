@@ -1,6 +1,19 @@
+import { SyntaxNode as OriginalSyntaxNode } from '@lezer/common/dist';
+
 export type SimpleRange = {
     from: number;
     to: number;
+};
+
+export type SyntaxNode = Omit<
+    OriginalSyntaxNode,
+    'name' | 'firstChild' | 'lastChild' | 'prevSibling' | 'nextSibling'
+> & {
+    name: NodeName;
+    firstChild: SyntaxNode;
+    lastChild: SyntaxNode;
+    prevSibling: SyntaxNode;
+    nextSibling: SyntaxNode;
 };
 
 export type NodeName =
@@ -10,6 +23,7 @@ export type NodeName =
     | 'ATXHeading4'
     | 'ATXHeading5'
     | 'ATXHeading6'
+    | 'Paragraph'
     | 'HeaderMark'
     | 'Emphasis'
     | 'StrongEmphasis'
@@ -20,12 +34,18 @@ export type NodeName =
     | 'Image'
     | 'LinkMark'
     | 'URL'
-    | 'ListItem' // todo
+    | 'BulletList'
+    | 'OrderedList'
+    | 'ListItem'
     | 'ListMark'
     | 'InlineCode'
     | 'FencedCode' // todo
     | 'CodeMark'
     | 'CodeInfo'
-    | 'Blockquote' // todo
+    | 'Blockquote'
     | 'QuoteMark'
     | 'HorizontalRule';
+
+export type NodeNameTree = Partial<{
+    [K in NodeName]: true | NodeNameTree;
+}>;

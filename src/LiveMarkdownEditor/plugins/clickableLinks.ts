@@ -2,7 +2,7 @@ import { Range } from '@codemirror/state';
 import { EditorView, Decoration, ViewUpdate, ViewPlugin, DecorationSet } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
 
-import { NodeName } from '../types';
+import { NodeName, SyntaxNode } from '../types';
 import { isMac, isMobile } from '../utils/env';
 
 class ClickableLinksPlugin {
@@ -41,8 +41,8 @@ class ClickableLinksPlugin {
                 enter: (node) => {
                     if ((node.name as NodeName) === 'URL') {
                         const url = view.state.doc.sliceString(node.from, node.to);
-                        const { parent } = node.node;
-                        const { from, to } = parent && (parent.name as NodeName) === 'Link' ? parent : node;
+                        const parent = node.node.parent as SyntaxNode | null;
+                        const { from, to } = parent?.name === 'Link' ? parent : node;
 
                         const link = Decoration.mark({
                             class: ClickableLinksPlugin.className,

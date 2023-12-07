@@ -38,13 +38,12 @@ const extensions = [
     EditorView.lineWrapping,
     history(),
     dropCursor(),
-    // todo
     // drawSelection(),
     bracketMatching(),
     syntaxHighlighting(testClassHighlighter),
     syntaxHighlighting(additionalClassHighlighter),
     highlightSpecialChars(),
-    highlightActiveLine(),
+    // highlightActiveLine(),
     highlightSelectionMatches(),
     keymap.of([...defaultKeymap, ...historyKeymap]),
 

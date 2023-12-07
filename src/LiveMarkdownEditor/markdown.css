@@ -5,6 +5,14 @@
     color: #3f4350;
 }
 
+.cm-editor .cm-content {
+    padding: 0 10px;
+}
+
+.cm-editor .cm-line {
+    padding: 0;
+}
+
 .cm-editor .cm-activeLine {
     background: transparent;
 }
@@ -21,7 +29,8 @@
 .cm-editor .cm-matchingBracket,
 .cm-editor.cm-focused .cm-matchingBracket,
 .cm-editor .cm-nonmatchingBracket,
-.cm-editor.cm-focused .cm-nonmatchingBracket {
+.cm-editor.cm-focused .cm-nonmatchingBracket,
+.cm-editor .cm-selectionMatch {
     background: transparent;
     position: relative;
     z-index: 0;
@@ -29,16 +38,23 @@
 }
 
 .cm-editor .cm-matchingBracket::before,
-.cm-editor .cm-nonmatchingBracket::before {
+.cm-editor .cm-nonmatchingBracket::before,
+.cm-editor .cm-selectionMatch::before {
     content: '';
     position: absolute;
     z-index: -1;
     top: 0;
     bottom: 0;
-    left: -1px;
-    right: -1px;
+    left: 0;
+    right: 0;
+    /* left: -1px;
+    right: -1px; */
     border-radius: 2px;
     background: rgba(0, 63, 255, 0.25);
+}
+
+.cm-editor .cm-selectionMatch::before {
+    background: rgba(0, 63, 255, 0.1);
 }
 
 .cm-editor .cm-nonmatchingBracket::before {
@@ -122,4 +138,47 @@
     height: 1px;
     border: none;
     background: rgba(63, 67, 80, 0.25);
+    cursor: text;
+}
+
+.cm-editor .cm-blockquote-line:not(.cm-selected) {
+    padding-left: 38px;
+    padding-right: 10px;
+}
+
+.cm-editor .cm-blockquote-firstLine {
+    position: relative;
+    padding-top: 10px;
+}
+
+.cm-editor .cm-blockquote-firstLine:not(.cm-selected)::before {
+    position: absolute;
+    top: 5px;
+    left: 8px;
+    content: '\f10d';
+    font-family: FontAwesome, sans-serif;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: normal;
+    opacity: 0.6;
+}
+
+.cm-editor .cm-blockquote-lastLine {
+    padding-bottom: 10px;
+}
+
+.cm-editor .cm-bulletList-line:not(.cm-selected) {
+    display: list-item;
+    list-style: disc inside none;
+}
+
+.cm-editor .cm-orderedList-line:not(.cm-selected) {
+    display: table-row;
+}
+
+.cm-editor .cm-orderedList-line:not(.cm-selected)::before {
+    display: table-cell;
+    content: attr(data-index);
+    padding-right: 8px;
+    text-align: right;
 }

@@ -1,10 +1,10 @@
 import { Range } from '@codemirror/state';
 import { EditorView, Decoration, ViewUpdate, ViewPlugin, DecorationSet } from '@codemirror/view';
 import { syntaxTree } from '@codemirror/language';
-import { SyntaxNode, SyntaxNodeRef } from '@lezer/common';
+import { SyntaxNodeRef } from '@lezer/common';
 
 import { decorators } from './decorators';
-import { NodeName } from '../../types';
+import { SyntaxNode } from '../../types';
 import { ImageWidget } from './decorations';
 
 const hiddenMarkTheme = EditorView.baseTheme({
@@ -32,6 +32,7 @@ class HidingMarkdownMarksPlugin {
 
     private getDecorations(view: EditorView): DecorationSet {
         const decoratedNodesMap = new Map<string, { node: SyntaxNode; selected: boolean }>();
+
         const getNodeKey = (node: SyntaxNodeRef) => `${node.from}-${node.to}-${node.name}`;
 
         view.visibleRanges.forEach(({ from, to }) => {
@@ -41,7 +42,7 @@ class HidingMarkdownMarksPlugin {
                 enter: (node) => {
                     if (node.name in decorators) {
                         decoratedNodesMap.set(getNodeKey(node), {
-                            node: node.node,
+                            node: node.node as SyntaxNode,
                             selected: false,
                         });
                     }
@@ -66,10 +67,15 @@ class HidingMarkdownMarksPlugin {
         const allDecorations: Range<Decoration>[] = [];
 
         for (const item of decoratedNodesMap.values()) {
-            const decorator = decorators[item.node.name as NodeName];
+            const decorator = decorators[item.node.name];
             const nodeDecorations = decorator!.getDecorations(item.node, item.selected, view);
             allDecorations.push(...nodeDecorations);
         }
+
+        allDecorations.sort((a, b) => {
+            const from = a.from - b.from;
+            return from !== 0 ? from : a.value.startSide - b.value.startSide;
+        });
 
         return Decoration.set(allDecorations);
     }
