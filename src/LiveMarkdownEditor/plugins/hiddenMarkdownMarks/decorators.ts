@@ -2,7 +2,7 @@ import { Range } from '@codemirror/state';
 import { EditorView, Decoration } from '@codemirror/view';
 
 import { SyntaxNode, NodeName, NodeNameTree } from '../../types';
-import { HorizontalRuleWidget, ImageWidget, hiddenMarkDecoration } from './decorations';
+import { ImageWidget, hiddenMarkDecoration } from './decorations';
 import {
     LineClassNames,
     forEachLine,
@@ -11,6 +11,7 @@ import {
     getUrl,
     getUrlNode,
     markEachLine,
+    markLine,
 } from './utils';
 
 type Decorator = (
@@ -41,19 +42,24 @@ class CustomNodeDecorator {
 }
 
 class HiddenMarksDecorator extends CustomNodeDecorator {
-    constructor(nodeName: NodeName, hiddenChildren: NodeName[]) {
-        if (!hiddenChildren.length) {
-            super(nodeName, () => []);
-            return;
-        }
-
+    constructor(nodeName: NodeName, hiddenChildren: NodeName[], lineClassName?: string) {
         const hiddenChildrenSet = new Set(hiddenChildren);
 
-        super(nodeName, (node) => getHiddenChildrenDecorations(node, hiddenChildrenSet));
-    }
+        super(nodeName, (node, selected, view) => {
+            const decorations: Range<Decoration>[] = [];
+            selected = selected && view.hasFocus;
 
-    protected shouldDecorated(node: SyntaxNode, selected: boolean, view: EditorView): boolean {
-        return super.shouldDecorated(node, selected, view) && (!selected || !view.hasFocus);
+            if (lineClassName) {
+                const className = selected ? `${lineClassName} cm-selected` : lineClassName;
+                decorations.push(markLine(node.from, view, className));
+            }
+
+            if (!selected) {
+                decorations.push(...getHiddenChildrenDecorations(node, hiddenChildrenSet));
+            }
+
+            return decorations;
+        });
     }
 }
 
@@ -135,17 +141,18 @@ class OrderedListDecorator extends MultilineDecorator {
 }
 
 export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
-    ATXHeading1: new HiddenMarksDecorator('ATXHeading1', ['HeaderMark']),
-    ATXHeading2: new HiddenMarksDecorator('ATXHeading2', ['HeaderMark']),
-    ATXHeading3: new HiddenMarksDecorator('ATXHeading3', ['HeaderMark']),
-    ATXHeading4: new HiddenMarksDecorator('ATXHeading4', ['HeaderMark']),
-    ATXHeading5: new HiddenMarksDecorator('ATXHeading5', ['HeaderMark']),
-    ATXHeading6: new HiddenMarksDecorator('ATXHeading6', ['HeaderMark']),
+    ATXHeading1: new HiddenMarksDecorator('ATXHeading1', ['HeaderMark'], 'cm-heading cm-heading-1'),
+    ATXHeading2: new HiddenMarksDecorator('ATXHeading2', ['HeaderMark'], 'cm-heading cm-heading-2'),
+    ATXHeading3: new HiddenMarksDecorator('ATXHeading3', ['HeaderMark'], 'cm-heading cm-heading-3'),
+    ATXHeading4: new HiddenMarksDecorator('ATXHeading4', ['HeaderMark'], 'cm-heading cm-heading-4'),
+    ATXHeading5: new HiddenMarksDecorator('ATXHeading5', ['HeaderMark'], 'cm-heading cm-heading-5'),
+    ATXHeading6: new HiddenMarksDecorator('ATXHeading6', ['HeaderMark'], 'cm-heading cm-heading-6'),
     Emphasis: new HiddenMarksDecorator('Emphasis', ['EmphasisMark']),
     StrongEmphasis: new HiddenMarksDecorator('StrongEmphasis', ['EmphasisMark']),
     Strikethrough: new HiddenMarksDecorator('Strikethrough', ['StrikethroughMark']),
     Link: new HiddenMarksDecorator('Link', ['LinkMark', 'URL']),
     InlineCode: new HiddenMarksDecorator('InlineCode', ['CodeMark']),
+    HorizontalRule: new HiddenMarksDecorator('HorizontalRule', [], 'cm-horizontal-rule'),
 
     Image: new CustomNodeDecorator('Image', (node, selected, view) => {
         const urlNode = getUrlNode(node)!;
@@ -164,16 +171,6 @@ export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
 
         const decoration = Decoration.replace({ widget });
         return [decoration.range(node.from, node.to)];
-    }),
-
-    HorizontalRule: new CustomNodeDecorator('HorizontalRule', (node, selected, view) => {
-        if (!(selected && view.hasFocus)) {
-            const widget = new HorizontalRuleWidget();
-            const decoration = Decoration.replace({ widget });
-            return [decoration.range(node.from, node.to)];
-        }
-
-        return [];
     }),
 
     Blockquote: new MultilineDecorator(

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { EditorView } from 'codemirror';
+import { EditorView } from '@codemirror/view';
 import { highlightSpecialChars, dropCursor, drawSelection, highlightActiveLine, keymap } from '@codemirror/view';
 import { syntaxHighlighting, bracketMatching } from '@codemirror/language';
 import { history, defaultKeymap, historyKeymap } from '@codemirror/commands';
@@ -16,17 +16,10 @@ import { sampleMarkdownText } from './debug/sampleMarkdownText';
 import './markdown.css';
 
 const additionalClassHighlighter = tagHighlighter([
-    { tag: tags.heading1, class: 'cm-heading cm-heading-1' },
-    { tag: tags.heading2, class: 'cm-heading cm-heading-2' },
-    { tag: tags.heading3, class: 'cm-heading cm-heading-3' },
-    { tag: tags.heading4, class: 'cm-heading cm-heading-4' },
-    { tag: tags.heading5, class: 'cm-heading cm-heading-5' },
-    { tag: tags.heading6, class: 'cm-heading cm-heading-6' },
     { tag: tags.strong, class: 'cm-strong' },
     { tag: tags.emphasis, class: 'cm-emphasis' },
     { tag: tags.strikethrough, class: 'cm-strike-through' },
     { tag: tags.link, class: 'cm-link' },
-    { tag: tags.contentSeparator, class: 'cm-horizontal-rule' },
 ]);
 
 const testClassHighlighter: Highlighter = (() => {

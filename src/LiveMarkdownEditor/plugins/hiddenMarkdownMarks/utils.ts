@@ -56,7 +56,7 @@ export const getHiddenChildrenDecorations = (node: SyntaxNode, children: Set<Nod
     return decorations;
 };
 
-const markLine = (pos: number, view: EditorView, className: string): Range<Decoration> => {
+export const markLine = (pos: number, view: EditorView, className: string): Range<Decoration> => {
     const line = view.state.doc.lineAt(pos);
     const decoration = Decoration.line({ class: className });
     return decoration.range(line.from);

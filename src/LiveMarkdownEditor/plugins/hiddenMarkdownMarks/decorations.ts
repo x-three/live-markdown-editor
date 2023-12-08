@@ -52,15 +52,3 @@ export class ImageWidget extends WidgetType {
         return ev.type !== 'mousedown';
     }
 }
-
-export class HorizontalRuleWidget extends WidgetType {
-    eq() {
-        return true;
-    }
-
-    toDOM() {
-        const hr = document.createElement('hr');
-        hr.classList.add('cm-horizontal-rule');
-        return hr;
-    }
-}
