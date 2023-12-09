@@ -11,7 +11,6 @@ import { tagHighlighter, tags, Highlighter } from '@lezer/highlight';
 
 import { hiddenMarkdownMarks } from './plugins/hiddenMarkdownMarks/hiddenMarkdownMarks';
 import { clickableLinks } from './plugins/clickableLinks';
-import { customCssClasses } from './plugins/customCssClasses';
 import { sampleMarkdownText } from './debug/sampleMarkdownText';
 import './markdown.css';
 
@@ -32,12 +31,12 @@ const extensions = [
     history(),
     dropCursor(),
     // drawSelection(),
-    bracketMatching(),
+    // bracketMatching(),
     syntaxHighlighting(testClassHighlighter),
     syntaxHighlighting(additionalClassHighlighter),
-    highlightSpecialChars(),
+    // highlightSpecialChars(),
     // highlightActiveLine(),
-    highlightSelectionMatches(),
+    // highlightSelectionMatches(),
     keymap.of([...defaultKeymap, ...historyKeymap]),
 
     markdown({
@@ -46,7 +45,6 @@ const extensions = [
     }),
     hiddenMarkdownMarks,
     clickableLinks,
-    customCssClasses,
 ];
 
 export const LiveMarkdownEditor: React.FC = () => {

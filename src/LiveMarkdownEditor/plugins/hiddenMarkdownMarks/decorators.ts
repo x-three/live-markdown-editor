@@ -108,9 +108,34 @@ class MultilineDecorator extends CustomNodeDecorator {
     }
 }
 
+class InlineCodeDecorator extends HiddenMarksDecorator {
+    constructor() {
+        super('InlineCode', ['CodeMark']);
+
+        const hiddenMarksDecorator = this.decorator;
+
+        this.decorator = (node, selected, view) => {
+            const decoration = Decoration.mark({ class: 'cm-inline-code' });
+
+            return [
+                decoration.range(node.from, node.to), //
+                ...hiddenMarksDecorator.call(this, node, selected, view),
+            ];
+        };
+    }
+}
+
 class OrderedListDecorator extends MultilineDecorator {
-    constructor(nodeName: NodeName, hiddenChildren: NodeNameTree, lineClassNames?: LineClassNames) {
-        super(nodeName, hiddenChildren, lineClassNames);
+    constructor(lineClassNames?: LineClassNames) {
+        super(
+            'OrderedList',
+            {
+                ListItem: {
+                    ListMark: true,
+                },
+            },
+            lineClassNames,
+        );
 
         const multilineDecorator = this.decorator;
 
@@ -127,15 +152,26 @@ class OrderedListDecorator extends MultilineDecorator {
                 }
             }
 
+            const maxDigits = Object.values(indexes).reduce(
+                (maxDigits, strIndex) => Math.max(maxDigits, strIndex.length - 1),
+                0,
+            );
+
             const indexDecorations = forEachLine(node.from, node.to, view, (line) => {
                 const decoration = Decoration.line({
-                    attributes: { 'data-index': indexes[line.number] },
+                    attributes: {
+                        'data-index': indexes[line.number],
+                        'data-max-digits': String(maxDigits),
+                    },
                 });
 
                 return decoration.range(line.from);
             });
 
-            return [...indexDecorations, ...multilineDecorator.call(this, node, selected, view)];
+            return [
+                ...indexDecorations, //
+                ...multilineDecorator.call(this, node, selected, view),
+            ];
         };
     }
 }
@@ -151,8 +187,8 @@ export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
     StrongEmphasis: new HiddenMarksDecorator('StrongEmphasis', ['EmphasisMark']),
     Strikethrough: new HiddenMarksDecorator('Strikethrough', ['StrikethroughMark']),
     Link: new HiddenMarksDecorator('Link', ['LinkMark', 'URL']),
-    InlineCode: new HiddenMarksDecorator('InlineCode', ['CodeMark']),
     HorizontalRule: new HiddenMarksDecorator('HorizontalRule', [], 'cm-horizontal-rule'),
+    InlineCode: new InlineCodeDecorator(),
 
     Image: new CustomNodeDecorator('Image', (node, selected, view) => {
         const urlNode = getUrlNode(node)!;
@@ -202,17 +238,9 @@ export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
         },
     ),
 
-    OrderedList: new OrderedListDecorator(
-        'OrderedList',
-        {
-            ListItem: {
-                ListMark: true,
-            },
-        },
-        {
-            every: 'cm-orderedList-line',
-            first: 'cm-orderedList-firstLine',
-            last: 'cm-orderedList-lastLine',
-        },
-    ),
+    OrderedList: new OrderedListDecorator({
+        every: 'cm-orderedList-line',
+        first: 'cm-orderedList-firstLine',
+        last: 'cm-orderedList-lastLine',
+    }),
 };

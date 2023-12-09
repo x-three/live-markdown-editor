@@ -26,7 +26,7 @@ class ClickableLinksPlugin {
     }
 
     update(update: ViewUpdate): void {
-        if (update.docChanged) {
+        if (update.docChanged || update.viewportChanged) {
             this.decorations = this.getDecorations(update.view);
         }
     }

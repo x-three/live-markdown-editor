@@ -9,6 +9,14 @@ export const markRangeOffsets: Partial<Record<NodeName, SimpleRange>> = {
         from: 0,
         to: 1,
     },
+    ListMark: {
+        from: 0,
+        to: 1,
+    },
+    QuoteMark: {
+        from: 0,
+        to: 1,
+    },
 };
 
 export const getMarkRangeWithOffset = (node: SyntaxNode): SimpleRange => {

@@ -3,8 +3,8 @@ import { EditorView, Decoration, ViewUpdate, ViewPlugin, DecorationSet } from '@
 import { syntaxTree } from '@codemirror/language';
 import { SyntaxNodeRef } from '@lezer/common';
 
-import { decorators } from './decorators';
 import { SyntaxNode } from '../../types';
+import { decorators } from './decorators';
 import { ImageWidget } from './decorations';
 
 const hiddenMarkTheme = EditorView.baseTheme({
@@ -22,6 +22,7 @@ class HidingMarkdownMarksPlugin {
         if (
             update.selectionSet ||
             update.focusChanged ||
+            update.viewportChanged ||
             update.transactions.some((transaction) =>
                 transaction.effects.some((effect) => effect.is(ImageWidget.loadingStateChanged)),
             )

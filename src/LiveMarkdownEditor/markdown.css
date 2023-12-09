@@ -5,11 +5,9 @@
     color: #3f4350;
 }
 
-.cm-editor .cm-content {
-    padding: 0 10px;
-}
-
 .cm-editor .cm-line {
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
     padding: 0;
 }
 
@@ -18,7 +16,7 @@
 }
 
 .cm-editor.cm-focused .cm-activeLine {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 63, 255, 0.075);
 }
 
 /* Selection **********************************************************************************************************/
@@ -45,7 +43,8 @@
 .cm-editor .cm-line.cm-heading {
     font-weight: 700;
     line-height: 1.5;
-    padding: 10px 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .cm-editor .cm-line.cm-heading:first-child {
@@ -78,7 +77,8 @@
 
 .cm-editor .cm-line.cm-horizontal-rule {
     position: relative;
-    padding: 10px 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .cm-editor .cm-line.cm-horizontal-rule:not(.cm-selected) {
@@ -168,24 +168,48 @@
 }
 
 .cm-editor .cm-orderedList-line:not(.cm-selected) {
-    display: table-row;
+    position: relative;
+}
+
+.cm-editor .cm-orderedList-line:not(.cm-selected)[data-max-digits='1'] {
+    /* 8 на цифру, 3 на точку, 8 отступ до текста */
+    padding-left: 19px;
+}
+
+.cm-editor .cm-orderedList-line:not(.cm-selected)[data-max-digits='2'] {
+    padding-left: 27px;
+}
+
+.cm-editor .cm-orderedList-line:not(.cm-selected)[data-max-digits='3'] {
+    padding-left: 35px;
 }
 
 .cm-editor .cm-orderedList-line:not(.cm-selected)::before {
-    display: table-cell;
+    position: absolute;
+    left: 0;
     content: attr(data-index);
-    padding-right: 8px;
     text-align: right;
+    white-space: nowrap;
+}
+
+.cm-editor .cm-orderedList-line:not(.cm-selected)[data-max-digits='1']::before {
+    width: 11px;
+}
+
+.cm-editor .cm-orderedList-line:not(.cm-selected)[data-max-digits='2']::before {
+    width: 19px;
+}
+
+.cm-editor .cm-orderedList-line:not(.cm-selected)[data-max-digits='3']::before {
+    width: 27px;
 }
 
 .cm-editor .cm-bulletList-firstLine,
-.cm-editor .cm-orderedList-firstLine.cm-selected,
-.cm-editor .cm-orderedList-firstLine:not(.cm-selected)::before {
+.cm-editor .cm-orderedList-firstLine {
     padding-top: 2px;
 }
 
 .cm-editor .cm-bulletList-lastLine,
-.cm-editor .cm-orderedList-lastLine.cm-selected,
-.cm-editor .cm-orderedList-lastLine:not(.cm-selected)::before {
+.cm-editor .cm-orderedList-lastLine {
     padding-bottom: 2px;
 }
