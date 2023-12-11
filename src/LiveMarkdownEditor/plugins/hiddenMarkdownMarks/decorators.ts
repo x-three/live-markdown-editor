@@ -125,6 +125,45 @@ class InlineCodeDecorator extends HiddenMarksDecorator {
     }
 }
 
+class FencedCodeDecorator extends CustomNodeDecorator {
+    constructor() {
+        super('FencedCode', (node, selected, view) => {
+            const decorations: Range<Decoration>[] = [];
+            selected = selected && view.hasFocus;
+
+            const firstLine = view.state.doc.lineAt(node.from);
+            const lastLine = view.state.doc.lineAt(node.to);
+            const maxLineNumber = lastLine.number - firstLine.number - 1;
+            const maxDigits = String(maxLineNumber).length;
+            const commonClassNames = selected ? 'cm-selected' : '';
+
+            decorations.push(
+                ...forEachLine(node.from, node.to, view, (line, index, total) => {
+                    let decoration: Decoration;
+
+                    if (index === 0) {
+                        decoration = Decoration.line({ class: `cm-fencedCode-firstLine ${commonClassNames}` });
+                    } else if (index === total - 1) {
+                        decoration = Decoration.line({ class: `cm-fencedCode-lastLine ${commonClassNames}` });
+                    } else {
+                        decoration = Decoration.line({
+                            class: `cm-fencedCode-middleLine ${commonClassNames}`,
+                            attributes: {
+                                'data-index': String(index),
+                                'data-max-digits': String(maxDigits),
+                            },
+                        });
+                    }
+
+                    return decoration.range(line.from);
+                }),
+            );
+
+            return decorations;
+        });
+    }
+}
+
 class OrderedListDecorator extends MultilineDecorator {
     constructor(lineClassNames?: LineClassNames) {
         super(
@@ -189,6 +228,7 @@ export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
     Link: new HiddenMarksDecorator('Link', ['LinkMark', 'URL']),
     HorizontalRule: new HiddenMarksDecorator('HorizontalRule', [], 'cm-horizontal-rule'),
     InlineCode: new InlineCodeDecorator(),
+    FencedCode: new FencedCodeDecorator(),
 
     Image: new CustomNodeDecorator('Image', (node, selected, view) => {
         const urlNode = getUrlNode(node)!;

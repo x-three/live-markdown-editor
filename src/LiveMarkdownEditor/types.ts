@@ -39,7 +39,7 @@ export type NodeName =
     | 'ListItem'
     | 'ListMark'
     | 'InlineCode'
-    | 'FencedCode' // todo
+    | 'FencedCode'
     | 'CodeMark'
     | 'CodeInfo'
     | 'Blockquote'
