@@ -14,12 +14,15 @@ import {
     markLine,
 } from './utils';
 
-type Decorator = (
-    this: CustomNodeDecorator,
-    node: SyntaxNode,
-    selected: boolean,
-    view: EditorView,
-) => Range<Decoration>[];
+const focusedClassName = 'cm-focused';
+
+type DecoratorParams = {
+    node: SyntaxNode;
+    focused: boolean;
+    view: EditorView;
+};
+
+type Decorator = (this: CustomNodeDecorator, params: DecoratorParams) => Range<Decoration>[];
 
 class CustomNodeDecorator {
     protected decorator: Decorator;
@@ -28,13 +31,13 @@ class CustomNodeDecorator {
         this.decorator = decorator;
     }
 
-    protected shouldDecorated(node: SyntaxNode, selected: boolean, view: EditorView): boolean {
+    protected shouldDecorated({ node }: DecoratorParams): boolean {
         return node.name === this.nodeName;
     }
 
-    getDecorations(node: SyntaxNode, selected: boolean, view: EditorView): Range<Decoration>[] {
-        if (this.shouldDecorated(node, selected, view)) {
-            return this.decorator(node, selected, view);
+    getDecorations(params: DecoratorParams): Range<Decoration>[] {
+        if (this.shouldDecorated(params)) {
+            return this.decorator(params);
         }
 
         return [];
@@ -45,16 +48,15 @@ class HiddenMarksDecorator extends CustomNodeDecorator {
     constructor(nodeName: NodeName, hiddenChildren: NodeName[], lineClassName?: string) {
         const hiddenChildrenSet = new Set(hiddenChildren);
 
-        super(nodeName, (node, selected, view) => {
+        super(nodeName, ({ node, focused, view }) => {
             const decorations: Range<Decoration>[] = [];
-            selected = selected && view.hasFocus;
 
             if (lineClassName) {
-                const className = selected ? `${lineClassName} cm-selected` : lineClassName;
+                const className = focused ? `${lineClassName} ${focusedClassName}` : lineClassName;
                 decorations.push(markLine(node.from, view, className));
             }
 
-            if (!selected) {
+            if (!focused) {
                 decorations.push(...getHiddenChildrenDecorations(node, hiddenChildrenSet));
             }
 
@@ -84,22 +86,23 @@ class MultilineDecorator extends CustomNodeDecorator {
             return decorations;
         };
 
-        super(nodeName, (node, selected, view) => {
+        super(nodeName, ({ node, focused, view }) => {
             const decorations: Range<Decoration>[] = [];
-            selected = selected && view.hasFocus;
 
             if (lineClassNames) {
                 decorations.push(
                     ...markEachLine(node.from, node.to, view, {
                         ...lineClassNames,
-                        ...(selected && {
-                            every: lineClassNames.every ? `${lineClassNames.every} cm-selected` : 'cm-selected',
+                        ...(focused && {
+                            every: lineClassNames.every
+                                ? `${lineClassNames.every} ${focusedClassName}`
+                                : focusedClassName,
                         }),
                     }),
                 );
             }
 
-            if (!selected) {
+            if (!focused) {
                 decorations.push(...getChildrenDecorations(node, hiddenChildren));
             }
 
@@ -114,12 +117,13 @@ class InlineCodeDecorator extends HiddenMarksDecorator {
 
         const hiddenMarksDecorator = this.decorator;
 
-        this.decorator = (node, selected, view) => {
+        this.decorator = (params) => {
             const decoration = Decoration.mark({ class: 'cm-inline-code' });
+            const { from, to } = params.node;
 
             return [
-                decoration.range(node.from, node.to), //
-                ...hiddenMarksDecorator.call(this, node, selected, view),
+                decoration.range(from, to), //
+                ...hiddenMarksDecorator.call(this, params),
             ];
         };
     }
@@ -127,15 +131,14 @@ class InlineCodeDecorator extends HiddenMarksDecorator {
 
 class FencedCodeDecorator extends CustomNodeDecorator {
     constructor() {
-        super('FencedCode', (node, selected, view) => {
+        super('FencedCode', ({ node, focused, view }) => {
             const decorations: Range<Decoration>[] = [];
-            selected = selected && view.hasFocus;
+            const commonClassNames = focused ? focusedClassName : '';
 
             const firstLine = view.state.doc.lineAt(node.from);
             const lastLine = view.state.doc.lineAt(node.to);
             const maxLineNumber = lastLine.number - firstLine.number - 1;
             const maxDigits = String(maxLineNumber).length;
-            const commonClassNames = selected ? 'cm-selected' : '';
 
             decorations.push(
                 ...forEachLine(node.from, node.to, view, (line, index, total) => {
@@ -178,7 +181,8 @@ class OrderedListDecorator extends MultilineDecorator {
 
         const multilineDecorator = this.decorator;
 
-        this.decorator = (node, selected, view) => {
+        this.decorator = (params) => {
+            const { node, view } = params;
             const indexes: Record<number, string> = {};
 
             for (let child = node.firstChild; child != null; child = child.nextSibling) {
@@ -209,7 +213,7 @@ class OrderedListDecorator extends MultilineDecorator {
 
             return [
                 ...indexDecorations, //
-                ...multilineDecorator.call(this, node, selected, view),
+                ...multilineDecorator.call(this, params),
             ];
         };
     }
@@ -230,7 +234,7 @@ export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
     InlineCode: new InlineCodeDecorator(),
     FencedCode: new FencedCodeDecorator(),
 
-    Image: new CustomNodeDecorator('Image', (node, selected, view) => {
+    Image: new CustomNodeDecorator('Image', ({ node, focused, view }) => {
         const urlNode = getUrlNode(node)!;
         const url = getUrl(urlNode, view)!;
         const widget = new ImageWidget(url);
@@ -240,7 +244,7 @@ export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
             return [decoration.range(urlNode.from, urlNode.to)];
         }
 
-        if (selected && view.hasFocus) {
+        if (focused) {
             const decoration = Decoration.widget({ widget, side: 1 });
             return [decoration.range(node.to)];
         }

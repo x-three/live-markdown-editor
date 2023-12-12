@@ -1,7 +1,8 @@
 import { EditorView, WidgetType, Decoration } from '@codemirror/view';
 import { StateEffect } from '@codemirror/state';
 
-export const hiddenMarkDecoration = Decoration.mark({ class: 'cm-hidden-mark' });
+export const hiddenMarkClassName = 'cm-hidden-mark';
+export const hiddenMarkDecoration = Decoration.mark({ class: hiddenMarkClassName });
 
 export class ImageWidget extends WidgetType {
     static readonly loadingStateChanged = StateEffect.define<string>();

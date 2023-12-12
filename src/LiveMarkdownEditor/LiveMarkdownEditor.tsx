@@ -9,7 +9,7 @@ import { languages } from '@codemirror/language-data';
 import { Strikethrough, Autolink } from '@lezer/markdown';
 import { tagHighlighter, tags, Highlighter } from '@lezer/highlight';
 
-import { hiddenMarkdownMarks } from './plugins/hiddenMarkdownMarks/hiddenMarkdownMarks';
+import { liveMarkdownPlugin } from './plugins/liveMarkdown/liveMarkdown';
 import { clickableLinks } from './plugins/clickableLinks';
 import { sampleMarkdownText } from './debug/sampleMarkdownText';
 import './markdown.css';
@@ -70,7 +70,7 @@ const extensions = [
         codeLanguages: languages,
         extensions: [Strikethrough, Autolink],
     }),
-    hiddenMarkdownMarks,
+    liveMarkdownPlugin,
     clickableLinks,
 ];
 
