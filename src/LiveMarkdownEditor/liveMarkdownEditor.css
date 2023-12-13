@@ -1,8 +1,22 @@
+.cm-editor {
+    --font-size: 13.5px;
+    --font-family: 'Open Sans', sans-serif;
+    --monospace-font-family: 'Courier New', monospace;
+
+    --color: #3f4350;
+    --faded-color: #ccc;
+
+    --bg-color-rgb: 63, 67, 80;
+    --highlight-color-rgb: 56, 111, 229;
+    --error-color-rgb: 210, 75, 78;
+    --border-color: rgba(var(--bg-color-rgb), 0.2);
+}
+
 .cm-editor .cm-scroller {
-    font-family: 'Open Sans', sans-serif;
-    font-size: 13.5px;
+    font-family: var(--font-family);
+    font-size: var(--font-size);
     line-height: normal;
-    color: #3f4350;
+    color: var(--color);
 }
 
 .cm-editor .cm-content {
@@ -18,7 +32,7 @@
 }
 
 .cm-editor.cm-focused .cm-activeLine {
-    background: rgba(0, 63, 255, 0.075);
+    background: rgba(var(--highlight-color-rgb), 0.1);
 }
 
 /* Selection **********************************************************************************************************/
@@ -34,11 +48,11 @@
 .cm-editor .cm-selectionMatch {
     display: inline-block;
     border-radius: 2px;
-    background: rgba(0, 63, 255, 0.25);
+    background: rgba(var(--highlight-color-rgb), 0.35);
 }
 
 .cm-editor .cm-nonmatchingBracket::before {
-    background: rgba(255, 0, 0, 0.2);
+    background: rgba(var(--error-color-rgb), 0.25);
 }
 
 /* Headings & HR ******************************************************************************************************/
@@ -54,27 +68,27 @@
 }
 
 .cm-editor .cm-line.cm-heading-1 {
-    font-size: 28px;
+    font-size: calc(var(--font-size) * 2.074);
 }
 
 .cm-editor .cm-line.cm-heading-2 {
-    font-size: 25px;
+    font-size: calc(var(--font-size) * 1.8518);
 }
 
 .cm-editor .cm-line.cm-heading-3 {
-    font-size: 22px;
+    font-size: calc(var(--font-size) * 1.6296);
 }
 
 .cm-editor .cm-line.cm-heading-4 {
-    font-size: 19px;
+    font-size: calc(var(--font-size) * 1.4074);
 }
 
 .cm-editor .cm-line.cm-heading-5 {
-    font-size: 15px;
+    font-size: calc(var(--font-size) * 1.1111);
 }
 
 .cm-editor .cm-line.cm-heading-6 {
-    font-size: 1em;
+    font-size: var(--font-size);
 }
 
 .cm-editor .cm-line.cm-horizontal-rule {
@@ -94,7 +108,7 @@
     left: 0;
     width: 100%;
     height: 1px;
-    background: rgba(63, 67, 80, 0.25);
+    background: rgba(var(--bg-color-rgb), 0.25);
 }
 
 /* Inline *************************************************************************************************************/
@@ -111,7 +125,7 @@
 }
 
 .cm-editor .cm-clickable-link {
-    color: #386fe5;
+    color: rgb(var(--highlight-color-rgb));
 }
 
 .cm-editor .cm-clickable-link:hover {
@@ -119,7 +133,7 @@
 }
 
 .cm-editor .cm-link-error {
-    color: #d24b4e;
+    color: rgb(var(--error-color-rgb));
 }
 
 .cm-editor .cm-inline-code {
@@ -127,7 +141,7 @@
     padding: 2px 4px;
     font-size: 90%;
     border-radius: 4px;
-    background: rgba(63, 67, 80, 0.1);
+    background: rgba(var(--bg-color-rgb), 0.1);
 }
 
 .cm-editor .cm-image {
@@ -151,6 +165,7 @@
     position: absolute;
     top: 5px;
     left: 8px;
+    /* todo: глянуть другой символ для примера */
     content: '\f10d';
     font-family: FontAwesome, sans-serif;
     font-size: 20px;
@@ -222,10 +237,12 @@
 .cm-editor .cm-fencedCode-middleLine,
 .cm-editor .cm-fencedCode-lastLine {
     position: relative;
-    font-family: 'Courier New', monospace;
+    font-family: var(--monospace-font-family);
 }
 
+.cm-editor .cm-fencedCode-firstLine:not(.cm-focused),
 .cm-editor .cm-fencedCode-firstLine:not(.cm-focused) > *,
+.cm-editor .cm-fencedCode-lastLine:not(.cm-focused),
 .cm-editor .cm-fencedCode-lastLine:not(.cm-focused) > * {
     color: transparent;
 }
@@ -237,25 +254,25 @@
     left: 0;
     right: 0;
     height: 11px;
-    border: 1px solid rgba(var(--center-channel-color-rgb), 0.2);
+    border: 1px solid var(--border-color);
     pointer-events: none;
 }
 
 .cm-editor .cm-fencedCode-firstLine:not(.cm-focused)::before {
     bottom: 0;
     border-style: solid solid none solid;
-    border-radius: 0.25em 0.25em 0 0;
+    border-radius: 4px 4px 0 0;
 }
 
 .cm-editor .cm-fencedCode-lastLine:not(.cm-focused)::before {
     top: 0;
     border-style: none solid solid solid;
-    border-radius: 0 0 0.25em 0.25em;
+    border-radius: 0 0 4px 4px;
 }
 
 .cm-editor .cm-fencedCode-middleLine {
-    border-left: 1px solid rgba(var(--center-channel-color-rgb), 0.2);
-    border-right: 1px solid rgba(var(--center-channel-color-rgb), 0.2);
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
     /* 12 отступ до цифр, 8 на цифру (минимум 27px), 4 от цифр до разделителя, 1 на разделитель, 12 до текста */
     padding-left: 56px;
     padding-right: 8px;
@@ -285,8 +302,8 @@
     bottom: -2px;
     min-width: 27px;
     padding: 2px 4px 0 12px;
-    border-right: 1px solid #ccc;
-    color: #ccc;
+    border-right: 1px solid var(--faded-color);
+    color: var(--faded-color);
     white-space: nowrap;
 }
 

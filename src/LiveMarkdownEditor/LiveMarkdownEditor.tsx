@@ -1,69 +1,21 @@
-import React, { useEffect, useRef } from 'react';
-import { EditorView } from '@codemirror/view';
-import { highlightSpecialChars, dropCursor, drawSelection, highlightActiveLine, keymap } from '@codemirror/view';
-import { syntaxHighlighting, bracketMatching } from '@codemirror/language';
+import React, { useEffect, useRef, useState } from 'react';
+import { EditorView, ViewUpdate } from '@codemirror/view';
+import { Extension, Annotation } from '@codemirror/state';
+import { dropCursor, keymap } from '@codemirror/view';
 import { history, defaultKeymap, historyKeymap } from '@codemirror/commands';
-import { highlightSelectionMatches } from '@codemirror/search';
 import { markdown } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
 import { Strikethrough, Autolink } from '@lezer/markdown';
-import { tagHighlighter, tags, Highlighter } from '@lezer/highlight';
 
 import { liveMarkdownPlugin } from './plugins/liveMarkdown/liveMarkdown';
 import { clickableLinks } from './plugins/clickableLinks';
-import { sampleMarkdownText } from './debug/sampleMarkdownText';
-import './markdown.css';
 
-const additionalClassHighlighter = tagHighlighter([
-    // markdown
-    { tag: tags.strong, class: 'cm-strong' },
-    { tag: tags.emphasis, class: 'cm-emphasis' },
-    { tag: tags.strikethrough, class: 'cm-strike-through' },
-    { tag: tags.link, class: 'cm-link' },
-    // json
-    { tag: tags.propertyName, class: 'hljs-attr' },
-    { tag: tags.string, class: 'hljs-string' },
-    { tag: tags.number, class: 'hljs-number' },
-    { tag: tags.bool, class: 'hljs-literal' },
-    // typescript
-    { tag: tags.typeName, class: 'hljs-title' },
-    { tag: tags.variableName, class: 'hljs-attr' },
-    { tag: tags.definitionKeyword, class: 'hljs-keyword' },
-    { tag: tags.operatorKeyword, class: 'hljs-built_in' },
-    { tag: tags.controlKeyword, class: 'hljs-keyword' },
-    { tag: tags.lineComment, class: 'hljs-comment' },
-    { tag: tags.blockComment, class: 'hljs-comment' },
-    // java
-    { tag: tags.modifier, class: 'hljs-keyword' },
-    { tag: tags.keyword, class: 'hljs-keyword' },
-    // html
-    { tag: tags.documentMeta, class: 'hljs-meta' },
-    { tag: tags.tagName, class: 'hljs-name' },
-    { tag: tags.character, class: 'hljs-symbol' },
-    // css
-    { tag: tags.className, class: 'hljs-selector-class' },
-    { tag: tags.derefOperator, class: 'hljs-selector-id' },
-    { tag: tags.labelName, class: 'hljs-selector-id' },
-    { tag: tags.unit, class: 'hljs-number' },
-    { tag: tags.color, class: 'hljs-number' },
-]);
+const External = Annotation.define<boolean>();
 
-const testClassHighlighter: Highlighter = (() => {
-    const tagsMap = Object.keys(tags).map((tagName) => ({ tag: (tags as any)[tagName], class: `cm-test-${tagName}` }));
-    return tagHighlighter(tagsMap);
-})();
-
-const extensions = [
+const defaultExtensions = [
     EditorView.lineWrapping,
     history(),
     dropCursor(),
-    // drawSelection(),
-    // bracketMatching(),
-    syntaxHighlighting(testClassHighlighter),
-    syntaxHighlighting(additionalClassHighlighter),
-    // highlightSpecialChars(),
-    // highlightActiveLine(),
-    // highlightSelectionMatches(),
     keymap.of([...defaultKeymap, ...historyKeymap]),
 
     markdown({
@@ -74,24 +26,76 @@ const extensions = [
     clickableLinks,
 ];
 
-export const LiveMarkdownEditor: React.FC = () => {
+type OnChange = (value: string) => void;
+
+const getUpdateListener = (cb: OnChange) => {
+    return EditorView.updateListener.of((update: ViewUpdate) => {
+        if (update.docChanged && !update.transactions.some((tr) => tr.annotation(External))) {
+            const value = update.state.doc.toString();
+            cb(value);
+        }
+    });
+};
+
+type Props = {
+    className?: string;
+    extensions: Extension;
+    value?: string;
+    onChange?: OnChange;
+};
+
+export const LiveMarkdownEditor: React.FC<Props> = ({ className = '', extensions, value, onChange }) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const [view, setView] = useState<EditorView>();
 
     useEffect(() => {
         if (!wrapperRef.current) {
             return;
         }
 
-        const editor = new EditorView({
-            doc: sampleMarkdownText,
-            extensions,
+        const viewExtensions = [...defaultExtensions];
+
+        if (extensions) {
+            if (extensions instanceof Array) {
+                viewExtensions.push(...extensions);
+            } else {
+                viewExtensions.push(extensions);
+            }
+        }
+
+        if (onChange) {
+            viewExtensions.push(getUpdateListener(onChange));
+        }
+
+        const view = new EditorView({
+            doc: value,
+            extensions: viewExtensions,
             parent: wrapperRef.current,
         });
 
-        return () => {
-            editor.destroy();
-        };
-    }, []);
+        setView(view);
 
-    return <div ref={wrapperRef} />;
+        return () => {
+            view.destroy();
+            setView(undefined);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [extensions, onChange]);
+
+    useEffect(() => {
+        if (value == null || view == null) {
+            return;
+        }
+
+        const currentValue = view.state.doc.toString();
+
+        if (value !== currentValue) {
+            view.dispatch({
+                changes: { from: 0, to: currentValue.length, insert: value },
+                annotations: [External.of(true)],
+            });
+        }
+    }, [value, view]);
+
+    return <div className={`cm-editor-wrapper ${className}`} ref={wrapperRef} />;
 };

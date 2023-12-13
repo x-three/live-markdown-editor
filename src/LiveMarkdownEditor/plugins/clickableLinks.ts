@@ -13,7 +13,7 @@ class ClickableLinksPlugin {
     decorations: DecorationSet;
 
     constructor(readonly view: EditorView) {
-        this.hint = `${view.state.phrase('Follow link')} (${isMac ? 'Cmd' : 'Ctrl'} + Click)`;
+        this.hint = `${view.state.phrase('liveMarkdownPlugin.followLink')} (${isMac ? 'Cmd' : 'Ctrl'} + Click)`;
         this.decorations = this.getDecorations(view);
 
         if (!isMobile) {

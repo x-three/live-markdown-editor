@@ -29,12 +29,5 @@ module.exports = {
                 tabWidth: 4,
             },
         },
-        {
-            files: ['*.yml', '*.yaml'],
-            options: {
-                tabWidth: 4,
-                singleQuote: false,
-            },
-        },
     ],
 };

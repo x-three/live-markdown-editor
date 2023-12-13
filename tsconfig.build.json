@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "outDir": "esm",
+        "rootDir": "src/LiveMarkdownEditor",
+        "emitDeclarationOnly": true
+    },
+    "include": ["src/LiveMarkdownEditor"],
+    "exclude": ["node_modules"]
+}

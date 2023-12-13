@@ -96,7 +96,7 @@ class LiveMarkdownPlugin {
                         const item = decoratedNodesMap.get(getNodeKey(node));
 
                         if (item) {
-                            item.focused = true;
+                            item.focused = view.hasFocus;
                         }
                     },
                 });
@@ -109,7 +109,7 @@ class LiveMarkdownPlugin {
             const decorator = decorators[item.node.name];
             const nodeDecorations = decorator!.getDecorations({
                 node: item.node,
-                focused: item.focused && view.hasFocus,
+                focused: item.focused,
                 view,
             });
             allDecorations.push(...nodeDecorations);
@@ -129,7 +129,7 @@ class LiveMarkdownPlugin {
 }
 
 const hiddenMarkTheme = EditorView.baseTheme({
-    [hiddenMarkClassName]: { display: 'none' },
+    [`.${hiddenMarkClassName}`]: { display: 'none' },
 });
 
 export const liveMarkdownPlugin = ViewPlugin.fromClass(LiveMarkdownPlugin, {

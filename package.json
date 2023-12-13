@@ -2,42 +2,47 @@
     "name": "live-markdown-editor",
     "version": "0.1.0",
     "private": true,
+    "module": "esm/index.js",
+    "main": "esm/index.js",
+    "types": "esm/index.d.ts",
+    "exports": {
+        "./*": "./esm/*"
+    },
     "scripts": {
         "start": "craco start",
-        "build": "craco build"
+        "prepare": "npm run build",
+        "build": "npm run clean && npm run build:esm && npm run build:types && npm run copy:styles",
+        "build:esm": "babel ./src/LiveMarkdownEditor --out-dir ./esm --source-maps --extensions .ts,.tsx",
+        "build:types": "tsc --project tsconfig.build.json",
+        "copy:styles": "cp ./src/LiveMarkdownEditor/liveMarkdownEditor.css ./esm",
+        "clean": "rm -rf ./esm"
     },
     "dependencies": {
         "@codemirror/lang-markdown": "^6.2.2",
         "@codemirror/language-data": "^6.3.1",
         "@codemirror/view": "github:x-three/codemirror-view#2d6a09c",
-        "codemirror": "^6.0.1",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0"
+        "codemirror": "^6.0.1"
     },
     "devDependencies": {
+        "@babel/cli": "^7.23.4",
+        "@babel/core": "^7.23.6",
+        "@babel/plugin-proposal-class-properties": "^7.18.6",
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+        "@babel/preset-env": "^7.23.6",
+        "@babel/preset-react": "^7.23.3",
+        "@babel/preset-typescript": "^7.23.3",
         "@craco/craco": "^7.1.0",
         "@types/node": "^18.18.11",
         "@types/react": "^18.2.38",
         "@types/react-dom": "^18.2.16",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
         "react-scripts": "^5.0.1",
         "typescript": "^4.9.5"
     },
-    "eslintConfig": {
-        "extends": [
-            "react-app"
-        ]
-    },
     "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
-    }
+        "production": [">0.2%", "not dead", "not op_mini all"],
+        "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    },
+    "files": ["esm"]
 }
