@@ -9,14 +9,9 @@ import { LiveMarkdownEditor } from './LiveMarkdownEditor';
 
 import { sampleMarkdownText } from './sampleMarkdownText';
 import './index.css';
-import './LiveMarkdownEditor/liveMarkdownEditor.css';
+import './LiveMarkdownEditor/styles.css';
 
-const additionalClassHighlighter = tagHighlighter([
-    // markdown
-    { tag: tags.strong, class: 'cm-strong' },
-    { tag: tags.emphasis, class: 'cm-emphasis' },
-    { tag: tags.strikethrough, class: 'cm-strike-through' },
-    { tag: tags.link, class: 'cm-link' },
+const fencedCodeHighlighter = tagHighlighter([
     // json
     { tag: tags.propertyName, class: 'hljs-attr' },
     { tag: tags.string, class: 'hljs-string' },
@@ -52,7 +47,7 @@ const extensions = [
     // highlightActiveLine(),
     // highlightSelectionMatches(),
 
-    syntaxHighlighting(additionalClassHighlighter),
+    syntaxHighlighting(fencedCodeHighlighter),
 
     EditorState.phrases.of({
         'liveMarkdownPlugin.followLink': 'Follow link',

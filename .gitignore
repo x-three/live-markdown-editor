@@ -1,6 +1,7 @@
 /node_modules
 /build
 /esm
+/cjs
 /debug.log
 
 .env.local

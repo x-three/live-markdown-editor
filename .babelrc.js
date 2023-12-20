@@ -3,7 +3,7 @@ module.exports = {
         [
             '@babel/preset-env',
             {
-                modules: false,
+                modules: process.env.BABEL_ENV === 'esm' ? false : 'auto',
                 targets: {
                     esmodules: true,
                 },

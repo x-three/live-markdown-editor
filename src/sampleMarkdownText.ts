@@ -5,8 +5,8 @@ export const sampleMarkdownText = `# Bulleted list with inline formatting
 * \`monospace item\`
 ***
 ## Ordered list with different style links
-* https://google.com
-* [Google](https://google.com)
+1. https://google.com
+2. [Google](https://google.com)
 ***
 ### Blockquote
 > Some quote from another source

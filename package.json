@@ -6,15 +6,16 @@
     "main": "esm/index.js",
     "types": "esm/index.d.ts",
     "exports": {
-        "./*": "./esm/*"
+        ".": "./esm/index.js",
+        "./styles.css": "./esm/styles.css"
     },
     "scripts": {
         "start": "craco start",
         "prepare": "npm run build",
         "build": "npm run clean && npm run build:esm && npm run build:types && npm run copy:styles",
         "build:esm": "babel ./src/LiveMarkdownEditor --out-dir ./esm --source-maps --extensions .ts,.tsx",
-        "build:types": "tsc --project tsconfig.build.json",
-        "copy:styles": "cp ./src/LiveMarkdownEditor/liveMarkdownEditor.css ./esm",
+        "build:types": "tsc --outDir esm --project tsconfig.build.json",
+        "copy:styles": "cp ./src/LiveMarkdownEditor/styles.css ./esm",
         "clean": "rm -rf ./esm"
     },
     "dependencies": {
