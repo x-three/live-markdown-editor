@@ -4,4 +4,5 @@ export type { Extension } from '@codemirror/state';
 export { syntaxHighlighting } from '@codemirror/language';
 export { tagHighlighter, tags } from '@lezer/highlight';
 
-export { LiveMarkdownEditor, updateEditorValue } from './LiveMarkdownEditor';
+export { LiveMarkdownEditor } from './LiveMarkdownEditor';
+export { updateEditorValue } from './utils/helpers';

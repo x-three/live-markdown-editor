@@ -1,24 +1,22 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { EditorView, ViewUpdate, dropCursor, keymap } from '@codemirror/view';
-import { Extension, Annotation } from '@codemirror/state';
+import { EditorView, dropCursor, keymap } from '@codemirror/view';
+import { Extension } from '@codemirror/state';
 import { history, defaultKeymap, historyKeymap } from '@codemirror/commands';
 import { markdown } from '@codemirror/lang-markdown';
 import { syntaxHighlighting } from '@codemirror/language';
 import { languages } from '@codemirror/language-data';
 import { Strikethrough, Autolink } from '@lezer/markdown';
-import { tagHighlighter, tags } from '@lezer/highlight';
 
 import { liveMarkdownPlugin } from './plugins/liveMarkdown/liveMarkdown';
 import { clickableLinks } from './plugins/clickableLinks';
-
-const External = Annotation.define<boolean>();
-
-const markdownHighlighter = tagHighlighter([
-    { tag: tags.strong, class: 'cm-strong' },
-    { tag: tags.emphasis, class: 'cm-emphasis' },
-    { tag: tags.strikethrough, class: 'cm-strike-through' },
-    { tag: tags.link, class: 'cm-link' },
-]);
+import {
+    OnChange,
+    getUpdateListener,
+    markdownHighlighter,
+    updateEditorValue,
+    getReadOnlySwitch,
+    ReadOnlySwitch,
+} from './utils/helpers';
 
 const defaultExtensions = [
     EditorView.lineWrapping,
@@ -35,45 +33,19 @@ const defaultExtensions = [
     clickableLinks,
 ];
 
-type OnChange = (value: string) => void;
-
-const getUpdateListener = (cb: OnChange) => {
-    return EditorView.updateListener.of((update: ViewUpdate) => {
-        if (update.docChanged && !update.transactions.some((tr) => tr.annotation(External))) {
-            const value = update.state.doc.toString();
-            cb(value);
-        }
-    });
-};
-
 type Props = {
     editorRef?: React.MutableRefObject<EditorView | undefined>;
     className?: string;
     extensions?: Extension;
     value?: string;
     onChange?: OnChange;
-};
-
-export const updateEditorValue = (view?: EditorView, newValue?: string): void => {
-    if (view == null || newValue == null) {
-        return;
-    }
-
-    const currentValue = view.state.doc.toString();
-
-    if (newValue !== currentValue) {
-        view.dispatch({
-            changes: { from: 0, to: currentValue.length, insert: newValue },
-            annotations: [External.of(true)],
-        });
-    }
+    disabled?: boolean;
 };
 
 export const LiveMarkdownEditor: React.FC<Props> = React.memo(
-    ({ editorRef, className = '', extensions, value, onChange }) => {
+    ({ editorRef, className = '', extensions, value, onChange, disabled = false }) => {
         const editorLocalRef = useRef<EditorView>();
-
-        useEffect(() => updateEditorValue(editorLocalRef.current, value), [value]);
+        const readOnlySwitchRef = useRef<ReadOnlySwitch>();
 
         const setWrapperRef = useCallback(
             (target: HTMLDivElement): void => {
@@ -99,6 +71,9 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
                     viewExtensions.push(getUpdateListener(onChange));
                 }
 
+                readOnlySwitchRef.current = getReadOnlySwitch(disabled);
+                viewExtensions.push(readOnlySwitchRef.current);
+
                 const view = new EditorView({
                     doc: value,
                     extensions: viewExtensions,
@@ -110,13 +85,29 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
                 }
                 editorLocalRef.current = view;
             },
-            // Skip: value
+            // Skip: value, disabled
             // eslint-disable-next-line react-hooks/exhaustive-deps
             [editorRef, extensions, onChange],
         );
 
-        className = `cm-editor-wrapper ${className}`.trim();
+        useEffect(() => updateEditorValue(editorLocalRef.current, value), [value]);
 
-        return <div ref={setWrapperRef} className={className} />;
+        useEffect(() => {
+            if (editorLocalRef.current && readOnlySwitchRef.current) {
+                editorLocalRef.current.dispatch({
+                    effects: readOnlySwitchRef.current.getUpdateEffect(disabled),
+                });
+            }
+        }, [disabled]);
+
+        let wrapperClassName = `cm-editor-wrapper`;
+        if (disabled) {
+            wrapperClassName += ' cm-disabled';
+        }
+        if (className) {
+            wrapperClassName += ` ${className}`;
+        }
+
+        return <div ref={setWrapperRef} className={wrapperClassName} />;
     },
 );

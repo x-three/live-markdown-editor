@@ -1,4 +1,4 @@
-.cm-editor {
+.cm-editor-wrapper {
     --cm-font-size: 13.5px;
     --cm-font-family: 'Open Sans', sans-serif;
     --cm-heading-font-family: var(--cm-font-family);
@@ -11,6 +11,10 @@
     --cm-color: #3f4350;
     --cm-faded-color: #ccc;
     --cm-border-color: rgba(var(--cm-bg-color-rgb), 0.2);
+}
+
+.cm-editor-wrapper.cm-disabled {
+    background: rgba(var(--cm-bg-color-rgb), 0.1);
 }
 
 .cm-editor.cm-focused {
