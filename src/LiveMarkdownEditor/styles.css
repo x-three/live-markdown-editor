@@ -40,6 +40,10 @@
     background: rgba(var(--cm-highlight-color-rgb), 0.1);
 }
 
+.cm-editor .cm-placeholder {
+    color: rgba(var(--cm-bg-color-rgb), 0.5);
+}
+
 /* Selection **********************************************************************************************************/
 /* .cm-editor .cm-selectionBackground,
 .cm-editor.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground {

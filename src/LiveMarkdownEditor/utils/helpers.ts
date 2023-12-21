@@ -1,13 +1,5 @@
 import { EditorView, ViewUpdate } from '@codemirror/view';
-import { Extension, StateEffect, Annotation, Compartment } from '@codemirror/state';
-import { tagHighlighter, tags } from '@lezer/highlight';
-
-export const markdownHighlighter = tagHighlighter([
-    { tag: tags.strong, class: 'cm-strong' },
-    { tag: tags.emphasis, class: 'cm-emphasis' },
-    { tag: tags.strikethrough, class: 'cm-strike-through' },
-    { tag: tags.link, class: 'cm-link' },
-]);
+import { Annotation } from '@codemirror/state';
 
 const External = Annotation.define<boolean>();
 
@@ -35,21 +27,4 @@ export const updateEditorValue = (view?: EditorView, newValue?: string): void =>
             annotations: [External.of(true)],
         });
     }
-};
-
-export type ReadOnlySwitch = {
-    extension: Extension;
-    getUpdateEffect: (newValue: boolean) => StateEffect<unknown>;
-};
-
-export const getReadOnlySwitch = (initialValue: boolean): ReadOnlySwitch => {
-    const compartment = new Compartment();
-
-    return {
-        extension: compartment.of(EditorView.editable.of(!initialValue)),
-
-        getUpdateEffect: (newValue: boolean) => {
-            return compartment.reconfigure(EditorView.editable.of(!newValue));
-        },
-    };
 };

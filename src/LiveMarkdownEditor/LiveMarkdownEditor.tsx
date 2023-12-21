@@ -7,16 +7,13 @@ import { syntaxHighlighting } from '@codemirror/language';
 import { languages } from '@codemirror/language-data';
 import { Strikethrough, Autolink } from '@lezer/markdown';
 
-import { liveMarkdownPlugin } from './plugins/liveMarkdown/liveMarkdown';
-import { clickableLinks } from './plugins/clickableLinks';
-import {
-    OnChange,
-    getUpdateListener,
-    markdownHighlighter,
-    updateEditorValue,
-    getReadOnlySwitch,
-    ReadOnlySwitch,
-} from './utils/helpers';
+import { liveMarkdownPlugin } from './extensions/liveMarkdown/liveMarkdown';
+import { clickableLinks } from './extensions/clickableLinks';
+import { markdownHighlighter } from './extensions/markdownHighlighter';
+import { getReadOnlySwitch } from './extensions/readOnly';
+import { getPlaceholderSwitch } from './extensions/placeholder';
+import { OnChange, getUpdateListener, updateEditorValue } from './utils/helpers';
+import { useSwitchExtension } from './hooks';
 
 const defaultExtensions = [
     EditorView.lineWrapping,
@@ -40,12 +37,32 @@ type Props = {
     value?: string;
     onChange?: OnChange;
     disabled?: boolean;
+    placeholder?: string;
 };
 
 export const LiveMarkdownEditor: React.FC<Props> = React.memo(
-    ({ editorRef, className = '', extensions, value, onChange, disabled = false }) => {
+    ({
+        editorRef,
+        className = '',
+        extensions,
+        value,
+        onChange,
+        disabled = false,
+        placeholder: placeholderValue = '',
+    }) => {
         const editorLocalRef = useRef<EditorView>();
-        const readOnlySwitchRef = useRef<ReadOnlySwitch>();
+
+        const readOnlyExtension = useSwitchExtension({
+            editorRef: editorLocalRef,
+            getSwitch: getReadOnlySwitch,
+            value: disabled,
+        });
+
+        const placeholderExtension = useSwitchExtension({
+            editorRef: editorLocalRef,
+            getSwitch: getPlaceholderSwitch,
+            value: placeholderValue,
+        });
 
         const setWrapperRef = useCallback(
             (target: HTMLDivElement): void => {
@@ -57,7 +74,7 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
                     editorLocalRef.current = undefined;
                 }
 
-                const viewExtensions = [...defaultExtensions];
+                const viewExtensions = [...defaultExtensions, readOnlyExtension, placeholderExtension];
 
                 if (extensions) {
                     if (extensions instanceof Array) {
@@ -71,9 +88,6 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
                     viewExtensions.push(getUpdateListener(onChange));
                 }
 
-                readOnlySwitchRef.current = getReadOnlySwitch(disabled);
-                viewExtensions.push(readOnlySwitchRef.current);
-
                 const view = new EditorView({
                     doc: value,
                     extensions: viewExtensions,
@@ -85,20 +99,12 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
                 }
                 editorLocalRef.current = view;
             },
-            // Skip: value, disabled
+            // Skip: value, disabled, readOnlyExtension, placeholderExtension
             // eslint-disable-next-line react-hooks/exhaustive-deps
             [editorRef, extensions, onChange],
         );
 
         useEffect(() => updateEditorValue(editorLocalRef.current, value), [value]);
-
-        useEffect(() => {
-            if (editorLocalRef.current && readOnlySwitchRef.current) {
-                editorLocalRef.current.dispatch({
-                    effects: readOnlySwitchRef.current.getUpdateEffect(disabled),
-                });
-            }
-        }, [disabled]);
 
         let wrapperClassName = `cm-editor-wrapper`;
         if (disabled) {

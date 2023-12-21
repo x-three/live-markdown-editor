@@ -1,3 +1,4 @@
+import { Extension, StateEffect } from '@codemirror/state';
 import { SyntaxNode as OriginalSyntaxNode } from '@lezer/common/dist';
 
 export type SimpleRange = {
@@ -49,3 +50,10 @@ export type NodeName =
 export type NodeNameTree = Partial<{
     [K in NodeName]: true | NodeNameTree;
 }>;
+
+export type SwitchExtension<T> = {
+    extension: Extension;
+    getUpdateEffect: (newValue: T) => StateEffect<unknown>;
+};
+
+export type SwitchExtensionCreator<T> = (initialValue: T) => SwitchExtension<T>;

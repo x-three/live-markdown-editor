@@ -1,7 +1,7 @@
 import React from 'react';
 // import { highlightSpecialChars, drawSelection, highlightActiveLine } from '@codemirror/view';
 // import { highlightSelectionMatches } from '@codemirror/search';
-// import { bracketMatching, syntaxHighlighting } from '@codemirror/language';
+// import { bracketMatching } from '@codemirror/language';
 import { EditorState } from '@codemirror/state';
 import { syntaxHighlighting } from '@codemirror/language';
 import { tagHighlighter, tags } from '@lezer/highlight';
@@ -54,4 +54,6 @@ const extensions = [
     }),
 ];
 
-export const App: React.FC = () => <LiveMarkdownEditor value={sampleMarkdownText} extensions={extensions} />;
+export const App: React.FC = () => (
+    <LiveMarkdownEditor value={sampleMarkdownText} extensions={extensions} placeholder="Placeholder" />
+);
