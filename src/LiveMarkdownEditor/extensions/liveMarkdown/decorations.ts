@@ -53,3 +53,16 @@ export class ImageWidget extends WidgetType {
         return ev.type !== 'mousedown';
     }
 }
+
+export class CaretHolder extends WidgetType {
+    eq() {
+        return true;
+    }
+
+    toDOM() {
+        const span = document.createElement('span');
+        span.className = 'cm-caret-holder';
+        span.innerHTML = ' ';
+        return span;
+    }
+}

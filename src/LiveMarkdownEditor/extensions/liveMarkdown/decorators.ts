@@ -2,11 +2,11 @@ import { Range } from '@codemirror/state';
 import { EditorView, Decoration } from '@codemirror/view';
 
 import { SyntaxNode, NodeName, NodeNameTree } from '../../types';
-import { /* ImageWidget, */ hiddenMarkDecoration } from './decorations';
+import { /* ImageWidget, */ hiddenMarkDecoration, CaretHolder } from './decorations';
 import {
     LineClassNames,
     forEachLine,
-    getHiddenChildrenDecorations,
+    hideChildren,
     getMarkRangeWithOffset,
     // getUrl,
     // getUrlNode,
@@ -57,7 +57,26 @@ class HiddenMarksDecorator extends CustomNodeDecorator {
             }
 
             if (!focused) {
-                decorations.push(...getHiddenChildrenDecorations(node, hiddenChildrenSet));
+                decorations.push(...hideChildren(node, hiddenChildrenSet));
+            }
+
+            return decorations;
+        });
+    }
+}
+
+class HorizontalRuleDecorator extends CustomNodeDecorator {
+    constructor() {
+        const lineClassName = 'cm-horizontal-rule';
+
+        super('HorizontalRule', ({ node, focused, view }) => {
+            const decorations: Range<Decoration>[] = [];
+            const className = focused ? `${lineClassName} ${focusedClassName}` : lineClassName;
+            decorations.push(markLine(node.from, view, className));
+
+            if (!focused) {
+                const widget = new CaretHolder();
+                decorations.push(Decoration.replace({ widget }).range(node.from, node.to));
             }
 
             return decorations;
@@ -238,7 +257,7 @@ export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
     StrongEmphasis: new HiddenMarksDecorator('StrongEmphasis', ['EmphasisMark']),
     Strikethrough: new HiddenMarksDecorator('Strikethrough', ['StrikethroughMark']),
     Link: new HiddenMarksDecorator('Link', ['LinkMark', 'URL']),
-    HorizontalRule: new HiddenMarksDecorator('HorizontalRule', [], 'cm-horizontal-rule'),
+    HorizontalRule: new HorizontalRuleDecorator(),
     InlineCode: new InlineCodeDecorator(),
     FencedCode: new FencedCodeDecorator(),
 

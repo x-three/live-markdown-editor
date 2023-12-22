@@ -51,17 +51,34 @@ export const getUrl = (urlNode: SyntaxNode, view: EditorView): string | undefine
     return undefined;
 };
 
-export const getHiddenChildrenDecorations = (node: SyntaxNode, children: Set<NodeName>): Range<Decoration>[] => {
+type DecorateChildrenCallback = (child: SyntaxNode, index: number) => Range<Decoration> | undefined;
+
+export const decorateChildren = (
+    node: SyntaxNode,
+    children: Set<NodeName>,
+    cb: DecorateChildrenCallback,
+): Range<Decoration>[] => {
     const decorations: Range<Decoration>[] = [];
+    let index = 0;
 
     for (let child = node.firstChild; child != null; child = child.nextSibling) {
         if (children.has(child.name)) {
-            const { from, to } = getMarkRangeWithOffset(child);
-            decorations.push(hiddenMarkDecoration.range(from, to));
+            const decoration = cb(child, index++);
+
+            if (decoration) {
+                decorations.push(decoration);
+            }
         }
     }
 
     return decorations;
+};
+
+export const hideChildren = (node: SyntaxNode, children: Set<NodeName>): Range<Decoration>[] => {
+    return decorateChildren(node, children, (child) => {
+        const { from, to } = getMarkRangeWithOffset(child);
+        return hiddenMarkDecoration.range(from, to);
+    });
 };
 
 export const markLine = (pos: number, view: EditorView, className: string): Range<Decoration> => {

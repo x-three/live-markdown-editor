@@ -1,5 +1,6 @@
 .cm-editor-wrapper {
     --cm-font-size: 13.5px;
+    --cm-line-height: 1.5;
     --cm-font-family: 'Open Sans', sans-serif;
     --cm-heading-font-family: var(--cm-font-family);
     --cm-monospace-font-family: 'Courier New', monospace;
@@ -24,12 +25,13 @@
 .cm-editor .cm-scroller {
     font-family: var(--cm-font-family);
     font-size: var(--cm-font-size);
-    line-height: 1.5;
+    line-height: var(--cm-line-height);
     color: var(--cm-color);
 }
 
 .cm-editor .cm-line {
     padding: 0;
+    min-height: calc(var(--cm-font-size) * var(--cm-line-height));
 }
 
 .cm-editor .cm-activeLine {
@@ -42,6 +44,11 @@
 
 .cm-editor .cm-placeholder {
     color: rgba(var(--cm-bg-color-rgb), 0.5);
+}
+
+.cm-editor .cm-caret-holder {
+    display: inline-block;
+    width: 1px;
 }
 
 /* Selection **********************************************************************************************************/
