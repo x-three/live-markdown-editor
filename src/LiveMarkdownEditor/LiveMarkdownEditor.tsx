@@ -12,6 +12,7 @@ import { clickableLinks } from './extensions/clickableLinks';
 import { markdownHighlighter } from './extensions/markdownHighlighter';
 import { getReadOnlySwitch } from './extensions/readOnly';
 import { getPlaceholderSwitch } from './extensions/placeholder';
+import { getSpellCheckSwitch } from './extensions/spellCheck';
 import { OnChange, getUpdateListener, updateEditorValue } from './utils/helpers';
 import { useSwitchExtension } from './hooks';
 
@@ -38,6 +39,7 @@ type Props = {
     onChange?: OnChange;
     disabled?: boolean;
     placeholder?: string;
+    spellcheck?: boolean;
 };
 
 export const LiveMarkdownEditor: React.FC<Props> = React.memo(
@@ -48,7 +50,8 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
         value,
         onChange,
         disabled = false,
-        placeholder: placeholderValue = '',
+        placeholder = '',
+        spellcheck = false,
     }) => {
         const editorLocalRef = useRef<EditorView>();
 
@@ -61,7 +64,13 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
         const placeholderExtension = useSwitchExtension({
             editorRef: editorLocalRef,
             getSwitch: getPlaceholderSwitch,
-            value: placeholderValue,
+            value: placeholder,
+        });
+
+        const spellCheckExtension = useSwitchExtension({
+            editorRef: editorLocalRef,
+            getSwitch: getSpellCheckSwitch,
+            value: spellcheck,
         });
 
         const setWrapperRef = useCallback(
@@ -74,7 +83,12 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
                     editorLocalRef.current = undefined;
                 }
 
-                const viewExtensions = [...defaultExtensions, readOnlyExtension, placeholderExtension];
+                const viewExtensions = [
+                    ...defaultExtensions,
+                    readOnlyExtension,
+                    placeholderExtension,
+                    spellCheckExtension,
+                ];
 
                 if (extensions) {
                     if (extensions instanceof Array) {
@@ -99,7 +113,7 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
                 }
                 editorLocalRef.current = view;
             },
-            // Skip: value, disabled, readOnlyExtension, placeholderExtension
+            // Skip: value, disabled, readOnlyExtension, placeholderExtension, spellCheckExtension
             // eslint-disable-next-line react-hooks/exhaustive-deps
             [editorRef, extensions, onChange],
         );

@@ -134,6 +134,7 @@ class FencedCodeDecorator extends CustomNodeDecorator {
         super('FencedCode', ({ node, focused, view }) => {
             const decorations: Range<Decoration>[] = [];
             const commonClassNames = focused ? focusedClassName : '';
+            const commonAttributes = { spellcheck: 'false' };
 
             const firstLine = view.state.doc.lineAt(node.from);
             const lastLine = view.state.doc.lineAt(node.to);
@@ -145,13 +146,20 @@ class FencedCodeDecorator extends CustomNodeDecorator {
                     let decoration: Decoration;
 
                     if (index === 0) {
-                        decoration = Decoration.line({ class: `cm-fencedCode-firstLine ${commonClassNames}` });
+                        decoration = Decoration.line({
+                            class: `cm-fencedCode-firstLine ${commonClassNames}`,
+                            attributes: commonAttributes,
+                        });
                     } else if (index === total - 1) {
-                        decoration = Decoration.line({ class: `cm-fencedCode-lastLine ${commonClassNames}` });
+                        decoration = Decoration.line({
+                            class: `cm-fencedCode-lastLine ${commonClassNames}`,
+                            attributes: commonAttributes,
+                        });
                     } else {
                         decoration = Decoration.line({
                             class: `cm-fencedCode-middleLine ${commonClassNames}`,
                             attributes: {
+                                ...commonAttributes,
                                 'data-index': String(index),
                                 'data-max-digits': String(maxDigits),
                             },
