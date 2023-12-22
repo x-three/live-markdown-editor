@@ -2,14 +2,14 @@ import { Range } from '@codemirror/state';
 import { EditorView, Decoration } from '@codemirror/view';
 
 import { SyntaxNode, NodeName, NodeNameTree } from '../../types';
-import { ImageWidget, hiddenMarkDecoration } from './decorations';
+import { /* ImageWidget, */ hiddenMarkDecoration } from './decorations';
 import {
     LineClassNames,
     forEachLine,
     getHiddenChildrenDecorations,
     getMarkRangeWithOffset,
-    getUrl,
-    getUrlNode,
+    // getUrl,
+    // getUrlNode,
     markEachLine,
     markLine,
 } from './utils';
@@ -234,7 +234,7 @@ export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
     InlineCode: new InlineCodeDecorator(),
     FencedCode: new FencedCodeDecorator(),
 
-    Image: new CustomNodeDecorator('Image', ({ node, focused, view }) => {
+    /* Image: new CustomNodeDecorator('Image', ({ node, focused, view }) => {
         const urlNode = getUrlNode(node)!;
         const url = getUrl(urlNode, view)!;
         const widget = new ImageWidget(url);
@@ -251,7 +251,7 @@ export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
 
         const decoration = Decoration.replace({ widget });
         return [decoration.range(node.from, node.to)];
-    }),
+    }), */
 
     Blockquote: new MultilineDecorator(
         'Blockquote',
