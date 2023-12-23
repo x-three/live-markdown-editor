@@ -8,6 +8,8 @@ export const sampleMarkdownText = `# Bulleted list with inline formatting
 1. https://google.com
 2. [Google](https://google.com)
 ***
+### Custom replacement, e.g., emoji ( :text: )
+***
 ### Blockquote
 > Some quote from another source
 ***

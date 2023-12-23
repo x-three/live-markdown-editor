@@ -57,3 +57,12 @@ export type SwitchExtension<T> = {
 };
 
 export type SwitchExtensionCreator<T> = (initialValue: T) => SwitchExtension<T>;
+
+export type ReplaceWithWidgetCallback = (value: string) => HTMLElement | null;
+
+export type ReplaceWithWidget = {
+    nodeName: string;
+    regexp: RegExp;
+    firstChar?: string;
+    cb: ReplaceWithWidgetCallback;
+};

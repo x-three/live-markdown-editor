@@ -5,7 +5,7 @@ import React from 'react';
 import { EditorState } from '@codemirror/state';
 import { syntaxHighlighting } from '@codemirror/language';
 import { tagHighlighter, tags } from '@lezer/highlight';
-import { LiveMarkdownEditor } from './LiveMarkdownEditor';
+import { LiveMarkdownEditor, ReplaceWithWidget } from './LiveMarkdownEditor';
 
 import { sampleMarkdownText } from './sampleMarkdownText';
 import './index.css';
@@ -54,6 +54,43 @@ const extensions = [
     }),
 ];
 
+const textToFontAwesomeSymbol = (text: string): string => {
+    const firstSymbol = 0xf000;
+    const lastSymbol = 0xf23a;
+    const maxSymbols = lastSymbol - firstSymbol + 1;
+    let symbolCode = 0;
+
+    for (let i = 0; i < text.length; i++) {
+        symbolCode += text.charCodeAt(i);
+    }
+    symbolCode = (symbolCode % maxSymbols) + firstSymbol;
+
+    return String.fromCharCode(symbolCode);
+};
+
+const replaceWithWidget: ReplaceWithWidget[] = [
+    {
+        nodeName: 'Emoji',
+        regexp: /:([a-z0-9_]+):/,
+        firstChar: ':',
+
+        cb: (value) => {
+            const name = value.substring(1, value.length - 1);
+            const emoji = document.createElement('span');
+
+            emoji.innerText = textToFontAwesomeSymbol(name);
+            emoji.className = `cm-emoji cm-emoji-${name}`;
+
+            return emoji;
+        },
+    },
+];
+
 export const App: React.FC = () => (
-    <LiveMarkdownEditor value={sampleMarkdownText} extensions={extensions} placeholder="Placeholder" />
+    <LiveMarkdownEditor
+        value={sampleMarkdownText}
+        extensions={extensions}
+        placeholder="Placeholder"
+        replaceWithWidget={replaceWithWidget}
+    />
 );

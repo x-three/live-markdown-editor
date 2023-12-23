@@ -1,8 +1,8 @@
 import { Range } from '@codemirror/state';
 import { EditorView, Decoration } from '@codemirror/view';
 
-import { SyntaxNode, NodeName, NodeNameTree } from '../../types';
-import { /* ImageWidget, */ hiddenMarkDecoration, CaretHolder } from './decorations';
+import { SyntaxNode, NodeName, NodeNameTree, ReplaceWithWidget, ReplaceWithWidgetCallback } from '../../types';
+import { /* ImageWidget, */ hiddenMarkDecoration, CaretHolder, CustomReplaceWidget } from './decorations';
 import {
     LineClassNames,
     forEachLine,
@@ -246,7 +246,25 @@ class OrderedListDecorator extends MultilineDecorator {
     }
 }
 
-export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
+class ReplaceWithWidgetDecorator extends CustomNodeDecorator {
+    constructor(nodeName: string, cb: ReplaceWithWidgetCallback) {
+        super(nodeName as any, ({ node, focused, view }) => {
+            if (!focused) {
+                const nodeText = view.state.doc.sliceString(node.from, node.to);
+                const widget = new CustomReplaceWidget(nodeText, cb);
+                const decoration = Decoration.replace({ widget });
+
+                return [decoration.range(node.from, node.to)];
+            }
+
+            return [];
+        });
+    }
+}
+
+export type Decorators = Partial<Record<NodeName, CustomNodeDecorator>>;
+
+const defaultDecorators: Decorators = {
     ATXHeading1: new HiddenMarksDecorator('ATXHeading1', ['HeaderMark'], 'cm-heading cm-heading-1'),
     ATXHeading2: new HiddenMarksDecorator('ATXHeading2', ['HeaderMark'], 'cm-heading cm-heading-2'),
     ATXHeading3: new HiddenMarksDecorator('ATXHeading3', ['HeaderMark'], 'cm-heading cm-heading-3'),
@@ -314,4 +332,16 @@ export const decorators: Partial<Record<NodeName, CustomNodeDecorator>> = {
         first: 'cm-orderedList-firstLine',
         last: 'cm-orderedList-lastLine',
     }),
+};
+
+export type ReplaceWithWidgetParam = Pick<ReplaceWithWidget, 'nodeName' | 'cb'>[];
+
+export const getDecorators = (replaceWithWidget: ReplaceWithWidgetParam = []): Decorators => {
+    const replaceWithWidgetDecorators = Object.fromEntries(
+        replaceWithWidget.map(({ nodeName, cb }) => {
+            return [nodeName, new ReplaceWithWidgetDecorator(nodeName, cb)];
+        }),
+    );
+
+    return { ...defaultDecorators, ...replaceWithWidgetDecorators };
 };
