@@ -1,8 +1,8 @@
 import { Range } from '@codemirror/state';
 import { EditorView, Decoration } from '@codemirror/view';
 
-import { SyntaxNode, NodeName, NodeNameTree, ReplaceWithWidget, ReplaceWithWidgetCallback } from '../../types';
-import { /* ImageWidget, */ hiddenMarkDecoration, CaretHolder, CustomReplaceWidget } from './decorations';
+import { SyntaxNode, NodeName, NodeNameTree, InlineWidget, InlineWidgetCallback } from '../../types';
+import { /* ImageWidget, */ hiddenMarkDecoration, CaretHolder, CustomInlineWidget } from './decorations';
 import {
     LineClassNames,
     forEachLine,
@@ -246,12 +246,12 @@ class OrderedListDecorator extends MultilineDecorator {
     }
 }
 
-class ReplaceWithWidgetDecorator extends CustomNodeDecorator {
-    constructor(nodeName: string, cb: ReplaceWithWidgetCallback) {
+class InlineWidgetDecorator extends CustomNodeDecorator {
+    constructor(nodeName: string, cb: InlineWidgetCallback) {
         super(nodeName as any, ({ node, focused, view }) => {
             if (!focused) {
                 const nodeText = view.state.doc.sliceString(node.from, node.to);
-                const widget = new CustomReplaceWidget(nodeText, cb);
+                const widget = new CustomInlineWidget(node.name, nodeText, cb);
                 const decoration = Decoration.replace({ widget });
 
                 return [decoration.range(node.from, node.to)];
@@ -334,14 +334,14 @@ const defaultDecorators: Decorators = {
     }),
 };
 
-export type ReplaceWithWidgetParam = Pick<ReplaceWithWidget, 'nodeName' | 'cb'>[];
+export type InlineWidgetsParam = Pick<InlineWidget, 'name' | 'cb'>[];
 
-export const getDecorators = (replaceWithWidget: ReplaceWithWidgetParam = []): Decorators => {
-    const replaceWithWidgetDecorators = Object.fromEntries(
-        replaceWithWidget.map(({ nodeName, cb }) => {
-            return [nodeName, new ReplaceWithWidgetDecorator(nodeName, cb)];
+export const getDecorators = (inlineWidgets: InlineWidgetsParam = []): Decorators => {
+    const inlineWidgetDecorators = Object.fromEntries(
+        inlineWidgets.map(({ name, cb }) => {
+            return [name, new InlineWidgetDecorator(name, cb)];
         }),
     );
 
-    return { ...defaultDecorators, ...replaceWithWidgetDecorators };
+    return { ...defaultDecorators, ...inlineWidgetDecorators };
 };

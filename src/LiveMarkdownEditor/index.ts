@@ -6,4 +6,4 @@ export { tagHighlighter, tags } from '@lezer/highlight';
 
 export { LiveMarkdownEditor } from './LiveMarkdownEditor';
 export { updateEditorValue } from './utils/helpers';
-export type { ReplaceWithWidget } from './types';
+export type { InlineWidget } from './types';

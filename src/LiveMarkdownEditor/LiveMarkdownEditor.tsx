@@ -13,10 +13,10 @@ import { markdownHighlighter } from './extensions/markdownHighlighter';
 import { getReadOnlySwitch } from './extensions/readOnly';
 import { getPlaceholderSwitch } from './extensions/placeholder';
 import { getSpellCheckSwitch } from './extensions/spellCheck';
-import { getReplaceWithWidgetParser } from './markdownExtensions/replaceWithWidget';
+import { getInlineWidgetParser } from './markdownExtensions/inlineWidget';
 import { OnChange, getUpdateListener, updateEditorValue } from './utils/helpers';
 import { useSwitchExtension } from './hooks';
-import { ReplaceWithWidget } from './types';
+import { InlineWidget } from './types';
 
 type Props = {
     editorRef?: React.MutableRefObject<EditorView | undefined>;
@@ -27,7 +27,7 @@ type Props = {
     disabled?: boolean;
     placeholder?: string;
     spellcheck?: boolean;
-    replaceWithWidget?: ReplaceWithWidget[];
+    inlineWidgets?: InlineWidget[];
 };
 
 export const LiveMarkdownEditor: React.FC<Props> = React.memo(
@@ -40,7 +40,7 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
         disabled = false,
         placeholder = '',
         spellcheck = false,
-        replaceWithWidget,
+        inlineWidgets,
     }) => {
         const editorLocalRef = useRef<EditorView>();
 
@@ -72,7 +72,7 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
                     editorLocalRef.current = undefined;
                 }
 
-                const additionalMarkdownExtensions = replaceWithWidget?.map(getReplaceWithWidgetParser) ?? [];
+                const additionalMarkdownExtensions = inlineWidgets?.map(getInlineWidgetParser) ?? [];
 
                 const viewExtensions = [
                     EditorView.lineWrapping,
@@ -85,7 +85,7 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
                         codeLanguages: languages,
                         extensions: [Strikethrough, Autolink, ...additionalMarkdownExtensions],
                     }),
-                    liveMarkdownPlugin(replaceWithWidget),
+                    liveMarkdownPlugin(inlineWidgets),
                     clickableLinks,
 
                     readOnlyExtension,
@@ -116,7 +116,7 @@ export const LiveMarkdownEditor: React.FC<Props> = React.memo(
                 }
                 editorLocalRef.current = view;
             },
-            // Skip: value, disabled, readOnlyExtension, placeholderExtension, spellCheckExtension, replaceWithWidget
+            // Skip: value, disabled, readOnlyExtension, placeholderExtension, spellCheckExtension, inlineWidgets
             // eslint-disable-next-line react-hooks/exhaustive-deps
             [editorRef, extensions, onChange],
         );

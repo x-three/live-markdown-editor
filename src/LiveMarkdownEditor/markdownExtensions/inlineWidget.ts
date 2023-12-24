@@ -1,22 +1,18 @@
 import { MarkdownConfig } from '@lezer/markdown';
 
-import { ReplaceWithWidget } from '../types';
+import { InlineWidget } from '../types';
 
-type ReplaceWithWidgetParserParams = Omit<ReplaceWithWidget, 'cb'>;
+type InlineWidgetParserParams = Omit<InlineWidget, 'cb'>;
 
-export const getReplaceWithWidgetParser = ({
-    nodeName,
-    regexp,
-    firstChar,
-}: ReplaceWithWidgetParserParams): MarkdownConfig => {
+export const getInlineWidgetParser = ({ name, regexp, firstChar }: InlineWidgetParserParams): MarkdownConfig => {
     const matcher = new RegExp(regexp, 'y');
     const firstCharCode = firstChar ? firstChar.charCodeAt(0) : undefined;
 
     return {
-        defineNodes: [nodeName],
+        defineNodes: [name],
         parseInline: [
             {
-                name: 'ReplaceWithWidget',
+                name: 'InlineWidget',
                 parse(cx, next, absPos) {
                     if (firstCharCode != null && firstCharCode !== next) {
                         return -1;
@@ -32,7 +28,7 @@ export const getReplaceWithWidgetParser = ({
 
                     const start = cx.offset + match.index;
                     const end = start + match[0].length;
-                    cx.addElement(cx.elt(nodeName, start, end));
+                    cx.addElement(cx.elt(name, start, end));
 
                     return end;
                 },

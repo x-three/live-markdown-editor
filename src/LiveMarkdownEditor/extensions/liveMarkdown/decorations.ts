@@ -1,7 +1,7 @@
 import { EditorView, WidgetType, Decoration } from '@codemirror/view';
 import { StateEffect } from '@codemirror/state';
 
-import { ReplaceWithWidgetCallback } from '../../types';
+import { InlineWidgetCallback } from '../../types';
 
 export const hiddenMarkClassName = 'cm-hidden-mark';
 export const hiddenMarkDecoration = Decoration.mark({ class: hiddenMarkClassName });
@@ -69,13 +69,13 @@ export class CaretHolder extends WidgetType {
     }
 }
 
-export class CustomReplaceWidget extends WidgetType {
-    constructor(readonly nodeText: string, readonly cb: ReplaceWithWidgetCallback) {
+export class CustomInlineWidget extends WidgetType {
+    constructor(readonly nodeName: string, readonly nodeText: string, readonly cb: InlineWidgetCallback) {
         super();
     }
 
-    eq(widget: CustomReplaceWidget) {
-        return widget.nodeText === this.nodeText && widget.cb === this.cb;
+    eq(widget: CustomInlineWidget) {
+        return widget.nodeName === this.nodeName && widget.nodeText === this.nodeText && widget.cb === this.cb;
     }
 
     toDOM() {
@@ -87,7 +87,7 @@ export class CustomReplaceWidget extends WidgetType {
 
         const placeholder = document.createElement('span');
         placeholder.innerText = this.nodeText;
-        placeholder.className = 'cm-replace-error';
+        placeholder.className = `cm-widget-error cm-widget-${this.nodeName}`;
 
         return placeholder;
     }

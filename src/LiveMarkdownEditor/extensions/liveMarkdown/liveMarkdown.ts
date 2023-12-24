@@ -4,7 +4,7 @@ import { syntaxTree } from '@codemirror/language';
 import { SyntaxNodeRef } from '@lezer/common';
 
 import { SyntaxNode } from '../../types';
-import { Decorators, ReplaceWithWidgetParam, getDecorators } from './decorators';
+import { Decorators, InlineWidgetsParam, getDecorators } from './decorators';
 import { ImageWidget, hiddenMarkClassName } from './decorations';
 
 const hiddenMarkTheme = EditorView.baseTheme({
@@ -13,7 +13,7 @@ const hiddenMarkTheme = EditorView.baseTheme({
 
 type DecoratedNodesMap = Map<string, { node: SyntaxNode; focused: boolean }>;
 
-export const liveMarkdownPlugin = (replaceWithWidget?: ReplaceWithWidgetParam) => {
+export const liveMarkdownPlugin = (inlineWidgets?: InlineWidgetsParam) => {
     return ViewPlugin.fromClass(
         class LiveMarkdownPlugin {
             static needUpdateEffect = StateEffect.define();
@@ -26,7 +26,7 @@ export const liveMarkdownPlugin = (replaceWithWidget?: ReplaceWithWidgetParam) =
             prevDecoratedNodesMap: DecoratedNodesMap | null = null;
 
             constructor(readonly view: EditorView) {
-                this.decorators = getDecorators(replaceWithWidget);
+                this.decorators = getDecorators(inlineWidgets);
                 this.decorations = this.getDecorations(view);
                 window.addEventListener('mousedown', this.startSelection, true);
             }

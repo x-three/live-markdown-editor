@@ -5,7 +5,7 @@ import React from 'react';
 import { EditorState } from '@codemirror/state';
 import { syntaxHighlighting } from '@codemirror/language';
 import { tagHighlighter, tags } from '@lezer/highlight';
-import { LiveMarkdownEditor, ReplaceWithWidget } from './LiveMarkdownEditor';
+import { LiveMarkdownEditor, InlineWidget } from './LiveMarkdownEditor';
 
 import { sampleMarkdownText } from './sampleMarkdownText';
 import './index.css';
@@ -68,9 +68,9 @@ const textToFontAwesomeSymbol = (text: string): string => {
     return String.fromCharCode(symbolCode);
 };
 
-const replaceWithWidget: ReplaceWithWidget[] = [
+const inlineWidgets: InlineWidget[] = [
     {
-        nodeName: 'Emoji',
+        name: 'Emoji',
         regexp: /:([a-z0-9_]+):/,
         firstChar: ':',
 
@@ -91,6 +91,6 @@ export const App: React.FC = () => (
         value={sampleMarkdownText}
         extensions={extensions}
         placeholder="Placeholder"
-        replaceWithWidget={replaceWithWidget}
+        inlineWidgets={inlineWidgets}
     />
 );
