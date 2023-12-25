@@ -20,10 +20,13 @@
         "noImplicitThis": true,
         "alwaysStrict": true,
         "isolatedModules": true,
+        "noFallthroughCasesInSwitch": true,
 
         /* Module Resolution Options */
         "moduleResolution": "node",
         "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
 
         /* Advanced Options */
         "skipLibCheck": true,
