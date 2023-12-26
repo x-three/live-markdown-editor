@@ -2,7 +2,8 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "rootDir": "src/LiveMarkdownEditor",
-        "emitDeclarationOnly": true
+        "emitDeclarationOnly": true,
+        "noEmit": false
     },
     "include": ["src/LiveMarkdownEditor"],
     "exclude": ["node_modules"]

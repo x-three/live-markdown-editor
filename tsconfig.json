@@ -1,14 +1,15 @@
 {
     "compilerOptions": {
         "target": "ES5",
-        "module": "CommonJS",
+        "module": "esnext",
         "lib": ["dom", "dom.iterable", "ESNext"],
-        "jsx": "react",
+        "jsx": "react-jsx",
         "declaration": true,
         "declarationMap": true,
         "sourceMap": true,
         "importHelpers": false,
         "downlevelIteration": true,
+        "noEmit": true,
 
         /* Strict Type-Checking Options */
         "strict": true,
@@ -21,6 +22,7 @@
         "alwaysStrict": true,
         "isolatedModules": true,
         "noFallthroughCasesInSwitch": true,
+        "allowJs": false,
 
         /* Module Resolution Options */
         "moduleResolution": "node",
