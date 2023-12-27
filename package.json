@@ -21,7 +21,7 @@
     "dependencies": {
         "@codemirror/lang-markdown": "^6.2.2",
         "@codemirror/language-data": "^6.3.1",
-        "@codemirror/view": "github:x-three/codemirror-view#a171860",
+        "@codemirror/view": "github:x-three/codemirror-view#3300f2c",
         "codemirror": "^6.0.1"
     },
     "devDependencies": {
